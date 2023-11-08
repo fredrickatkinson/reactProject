@@ -6,7 +6,7 @@ import { createApi } from 'unsplash-js';
 function App() {
   const [images, setImages] = useState([]);
   const api = createApi({
-    accessKey: '',
+    accessKey: 'DT1XUSvug9xEzH0u7H4Yg66Ix-3r1anXevpHPQ-KV38',
   })
   const ex = ['one', 'two', 'buckle', 'my', 'shoe', 'three', 'four', 'buckle', 'some', 'more', 'five', 'six', 'nike', 'kicks'];
   
