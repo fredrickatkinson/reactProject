@@ -52,7 +52,7 @@
   justify-content: space-around;
 }
 .nav * {
-  padding: 2% 0;
+  padding: 1% 0;
   border: none;
   color: coral;
   background-color: white;
@@ -82,6 +82,29 @@
   width: 25%;
   margin: 0;
 }
+.single {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.selected {
+  width: fit-content;
+  height: 80%;
+}
+.exit {
+  width: 10%;
+  height: fit-content;
+  font-size: x-large;
+  color: coral;
+  background-color: white;
+  border: none;
+}
 .hidden {
   color: white;
+}
+.hide {
+  display: none;
 }
