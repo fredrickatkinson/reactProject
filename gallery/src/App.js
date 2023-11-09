@@ -7,15 +7,17 @@ import axios from 'axios';
 function App() {
   const [images, setImages] = useState([]);
   const [custom, setCustom] = useState('');
+  const [focus, setFocus] = useState(false);
   
   useEffect(() => {
     const button = document.querySelector('.enter');
     const hidd = document.querySelector('.hide');
-    console.log(custom);
     if (custom === '') {
+      setFocus(false);
       button.classList.add('hidden');
     }
     else {
+      setFocus(true);
       button.classList.remove('hidden');
     }
   });
@@ -42,7 +44,13 @@ function App() {
       })
   }
 
-  return(
+  const blur = (event) => {
+    if (focus && event.key === 'Enter') {
+      search(custom);
+    }
+  };
+
+  return (
     <div className='mainPage'>
       <div className='nav'>
         <button onClick={() => search('nature')}>Nature</button>
@@ -51,7 +59,8 @@ function App() {
         <button onClick={() => search('sky')}>Sky</button>
         <button onClick={() => search('space')}>Space</button>
         <button onClick={() => search('animals')}>Animals</button>
-        <input type='text' placeholder='Search...' value={custom} onChange={(e) => setCustom(e.target.value)}></input>
+        <input type='text' placeholder='Search...' value={custom} onChange={(e) => setCustom(e.target.value)}
+         onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} onKeyDown={blur}></input>
         <button className='enter' onClick={() => search(custom)}>Enter</button>
       </div>
       <div className='container'>
@@ -60,7 +69,7 @@ function App() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 export default App;
