@@ -59,9 +59,6 @@
   font-size: larger;
   height: fit-content;
 }
-.nav *:hover {
-  color: coral;
-}
 .nav input:focus {
   outline: none;
 }

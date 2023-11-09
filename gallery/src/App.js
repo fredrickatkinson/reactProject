@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { createApi } from 'unsplash-js';
@@ -8,7 +8,7 @@ function App() {
   const [images, setImages] = useState([]);
   const [custom, setCustom] = useState('');
   const [focus, setFocus] = useState(false);
-  
+  const ky = useRef(null);  
   useEffect(() => {
     const button = document.querySelector('.enter');
     const hidd = document.querySelector('.hide');
@@ -26,6 +26,9 @@ function App() {
   }, []);
 
   const search = (query) => {
+    if (focus && custom === '') {
+      query = 'field';
+    }
     const accessKey = 'DT1XUSvug9xEzH0u7H4Yg66Ix-3r1anXevpHPQ-KV38';
     const apiUrl = `https://api.unsplash.com/search/photos?query=${query}&client_id=${accessKey}`;
 
@@ -49,6 +52,13 @@ function App() {
       search(custom);
     }
   };
+  const click = () => {
+    const hasC = ky.current.classList.contains('hidden');
+    if (!hasC) {
+      setFocus(true);
+      search(custom);
+    }
+  }
 
   return (
     <div className='mainPage'>
@@ -61,7 +71,7 @@ function App() {
         <button onClick={() => search('animals')}>Animals</button>
         <input type='text' placeholder='Search...' value={custom} onChange={(e) => setCustom(e.target.value)}
          onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} onKeyDown={blur}></input>
-        <button className='enter' onClick={() => search(custom)}>Enter</button>
+        <button className='enter' onClick={() => click()} ref={ky}>Enter</button>
       </div>
       <div className='container'>
         {images.map((image) => (
