@@ -6,7 +6,10 @@ function App() {
   const [custom, setCustom] = useState('');
   const [focus, setFocus] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const ky = useRef(null);  
+  const imageCount = useRef(0);
+  const ky = useRef(null);
+  const totalImages = 40;
+  var finished = false;
   useEffect(() => {
     const button = document.querySelector('.enter');
     if (custom === '') {
@@ -18,27 +21,34 @@ function App() {
       button.classList.remove('hidden');
     }
   });
-  const fetchMoreImages = async () => {
-    const totalImages = 50;
+  const fetchMoreImages = async (query) => {
     const imagesPerPage = 10;
     const totalPages = Math.ceil(totalImages / imagesPerPage);
   
-    for (let page = 1; page <= totalPages; page++) {
-      await search('nature', page, imagesPerPage);
+    for (let page = 1; page <= totalPages && !finished; page++) {
+      if (imageCount.current >= totalImages) {
+        break;
+      }
+      await search(query, page, imagesPerPage);
     }
   };
   useEffect(() => {
-    search('field');
-    fetchMoreImages();
+    console.log(images.length);
+    if (images.length >= totalImages) {
+      imageCount.current = totalImages;
+    }
+  }, [images]);
+
+  useEffect(() => {
+    fetchMoreImages('field');
   }, []);
 
-  const search = (query, page = 1, perPage = 10) => {
+  const search = async (query, page = 1, perPage = 10) => {
     if (focus && custom === '') {
       query = 'field';
     }
     const accessKey = 'DT1XUSvug9xEzH0u7H4Yg66Ix-3r1anXevpHPQ-KV38';
-    
-    const apiUrl = `https://api.unsplash.com/search/photos?query=${query}&client_id=${accessKey}&page=${page}&per_page=28`;
+    const apiUrl = `https://api.unsplash.com/search/photos?query=${query}&client_id=${accessKey}&page=${page}&per_page=${perPage}`;
 
     fetch(apiUrl)
       .then((response) => {
@@ -49,8 +59,9 @@ function App() {
       })
       .then((data) => {
         if (page === 1) {
-        setImages(data.results);
-        }else{
+          setImages(data.results);
+        }
+        else {
           setImages((prevImages) => [...prevImages, ...data.results]);
         }
       })
@@ -61,14 +72,14 @@ function App() {
 
   const blur = (event) => {
     if (focus && event.key === 'Enter') {
-      search(custom);
+      fetchMoreImages(custom);
     }
   };
   const click = () => {
     const hasC = ky.current.classList.contains('hidden');
     if (!hasC) {
       setFocus(true);
-      search(custom);
+      fetchMoreImages(custom);
     }
   }
   const openImage = (key, img, alt) => {
@@ -86,20 +97,20 @@ function App() {
     <>
       <div className='mainPage'>
         <div className='nav'>
-          <button onClick={() => search('nature')}>Nature</button>
-          <button onClick={() => search('city')}>City</button>
-          <button onClick={() => search('lake')}>Lake</button>
-          <button onClick={() => search('sky')}>Sky</button>
-          <button onClick={() => search('space')}>Space</button>
-          <button onClick={() => search('animals')}>Animals</button>
+          <button onClick={() => fetchMoreImages('nature')}>Nature</button>
+          <button onClick={() => fetchMoreImages('city')}>City</button>
+          <button onClick={() => fetchMoreImages('lake')}>Lake</button>
+          <button onClick={() => fetchMoreImages('sky')}>Sky</button>
+          <button onClick={() => fetchMoreImages('space')}>Space</button>
+          <button onClick={() => fetchMoreImages('animals')}>Animals</button>
 
           <input type='text' placeholder='Search...' value={custom} onChange={(e) => setCustom(e.target.value)}
           onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} onKeyDown={blur}></input>
           <button className='enter' onClick={() => click()} ref={ky}>Enter</button>
         </div>
         <div className='container'>
-          {images.map((image) => (
-            <img key={image.id} src={image.urls.regular} onClick={() => openImage(image.id, image.urls.regular, image.description)} alt={image.description} className='image'/>
+          {images.map((image, index) => (
+            <img key={index} src={image.urls.regular} onClick={() => openImage(image.id, image.urls.regular, image.description)} alt={image.description} className='image'/>
           ))}
         </div>
       </div>
