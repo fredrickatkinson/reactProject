@@ -1,8 +1,5 @@
 import {useState, useEffect, useRef} from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { createApi } from 'unsplash-js';
-import axios from 'axios';
 
 function App() {
   const [images, setImages] = useState([]);
@@ -12,7 +9,6 @@ function App() {
   const ky = useRef(null);  
   useEffect(() => {
     const button = document.querySelector('.enter');
-    const hidd = document.querySelector('.hide');
     if (custom === '') {
       setFocus(false);
       button.classList.add('hidden');
