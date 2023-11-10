@@ -74,9 +74,10 @@
   height: 100%;
 }
 .image {
-  width: 20%;
+  width: 20%; 
+  height: 20%; 
+  object-fit: cover; 
   margin: 2.5%;
-  height: fit-content;
 }
 .image:hover {
   width: 25%;

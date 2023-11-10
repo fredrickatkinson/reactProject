@@ -22,16 +22,27 @@ function App() {
       button.classList.remove('hidden');
     }
   });
+  const fetchMoreImages = async () => {
+    const totalImages = 50;
+    const imagesPerPage = 10;
+    const totalPages = Math.ceil(totalImages / imagesPerPage);
+  
+    for (let page = 1; page <= totalPages; page++) {
+      await search('nature', page, imagesPerPage);
+    }
+  };
   useEffect(() => {
     search('field');
+    fetchMoreImages();
   }, []);
 
-  const search = (query) => {
+  const search = (query, page = 1, perPage = 10) => {
     if (focus && custom === '') {
       query = 'field';
     }
     const accessKey = 'DT1XUSvug9xEzH0u7H4Yg66Ix-3r1anXevpHPQ-KV38';
-    const apiUrl = `https://api.unsplash.com/search/photos?query=${query}&client_id=${accessKey}`;
+    
+    const apiUrl = `https://api.unsplash.com/search/photos?query=${query}&client_id=${accessKey}&page=${page}&per_page=28`;
 
     fetch(apiUrl)
       .then((response) => {
@@ -41,12 +52,16 @@ function App() {
         return response.json();
       })
       .then((data) => {
+        if (page === 1) {
         setImages(data.results);
+        }else{
+          setImages((prevImages) => [...prevImages, ...data.results]);
+        }
       })
       .catch((error) => {
         console.error('Error fetching images from Unsplash:', error);
       })
-  }
+  };
 
   const blur = (event) => {
     if (focus && event.key === 'Enter') {
@@ -81,6 +96,7 @@ function App() {
           <button onClick={() => search('sky')}>Sky</button>
           <button onClick={() => search('space')}>Space</button>
           <button onClick={() => search('animals')}>Animals</button>
+
           <input type='text' placeholder='Search...' value={custom} onChange={(e) => setCustom(e.target.value)}
           onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} onKeyDown={blur}></input>
           <button className='enter' onClick={() => click()} ref={ky}>Enter</button>
