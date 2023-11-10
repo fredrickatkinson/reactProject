@@ -8,8 +8,10 @@ function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const imageCount = useRef(0);
   const ky = useRef(null);
-  const totalImages = 40;
-  var finished = false;
+  const totalImages = 80;
+  let finished = false;
+  const fetchedImages = useRef(new Set());
+
   useEffect(() => {
     const button = document.querySelector('.enter');
     if (custom === '') {
@@ -21,19 +23,29 @@ function App() {
       button.classList.remove('hidden');
     }
   });
+
   const fetchMoreImages = async (query) => {
     const imagesPerPage = 10;
     const totalPages = Math.ceil(totalImages / imagesPerPage);
-  
+    setImages([]);
+    imageCount.current = 0;
+    
+    let page = 1;
+    while (imageCount.current < totalImages && page <= totalPages) {
+      await search(query, page, imagesPerPage);
+      page++;
+    }
+    /*
     for (let page = 1; page <= totalPages && !finished; page++) {
       if (imageCount.current >= totalImages) {
+        finished = true;
         break;
       }
       await search(query, page, imagesPerPage);
     }
+    */
   };
   useEffect(() => {
-    console.log(images.length);
     if (images.length >= totalImages) {
       imageCount.current = totalImages;
     }
@@ -43,32 +55,43 @@ function App() {
     fetchMoreImages('field');
   }, []);
 
-  const search = async (query, page = 1, perPage = 10) => {
+  const search = async (query, page, perPage) => {
     if (focus && custom === '') {
       query = 'field';
     }
     const accessKey = 'DT1XUSvug9xEzH0u7H4Yg66Ix-3r1anXevpHPQ-KV38';
     const apiUrl = `https://api.unsplash.com/search/photos?query=${query}&client_id=${accessKey}&page=${page}&per_page=${perPage}`;
 
-    fetch(apiUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (page === 1) {
-          setImages(data.results);
-        }
-        else {
-          setImages((prevImages) => [...prevImages, ...data.results]);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching images from Unsplash:', error);
-      })
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      updateImages(data.results);
+    }
+    catch (error) {
+      console.error('Error fetching images from Unsplash:', error);
+      return {results: []};
+    }
   };
+
+  const updateImages = (newImages) => {
+    setImages((prevImages) => {
+      const uniqueImages = newImages.filter(
+        (image) => !fetchedImages.current.has(image.id)
+      );
+      fetchedImages.current = new Set([
+        ...fetchedImages.current,
+        ...uniqueImages.map((image) => image.id),
+      ]);
+      if (imageCount.current + uniqueImages.length >= totalImages) {
+        finished = true;
+      }
+      imageCount.current += uniqueImages.length;
+      return [...prevImages, ...uniqueImages];
+    })
+  }
 
   const blur = (event) => {
     if (focus && event.key === 'Enter') {
